@@ -1,7 +1,8 @@
+from flask import Flask, request, jsonify
 import os
 import json
 from cryptography.fernet import Fernet
-import bcrypt  # Install with `pip install bcrypt`
+import bcrypt
 
 # File paths
 USER_FILE = "users.json"
@@ -22,7 +23,7 @@ def load_key():
 key = load_key()
 fernet = Fernet(key)
 
-# User management functions
+# Helper functions
 def load_users():
     if os.path.exists(USER_FILE):
         with open(USER_FILE, "r") as file:
@@ -36,24 +37,21 @@ def save_users(users):
 def register_user(username, master_password):
     users = load_users()
     if username in users:
-        return "Username already exists!"
-    
+        return False, "Username already exists!"
     hashed_password = bcrypt.hashpw(master_password.encode(), bcrypt.gensalt()).decode()
     users[username] = hashed_password
     save_users(users)
-    return "User registered successfully!"
+    return True, "User registered successfully!"
 
 def login_user(username, master_password):
     users = load_users()
     if username not in users:
         return False, "Username not found!"
-    
     hashed_password = users[username].encode()
     if bcrypt.checkpw(master_password.encode(), hashed_password):
         return True, "Login successful!"
     return False, "Incorrect password!"
 
-# Password management functions
 def load_passwords(username):
     if os.path.exists(PASSWORDS_FILE):
         with open(PASSWORDS_FILE, "r") as file:
@@ -82,58 +80,42 @@ def retrieve_password(username, account):
     if account in passwords:
         encrypted_password = passwords[account]
         return fernet.decrypt(encrypted_password.encode()).decode()
-    return f"Account not found! Stored accounts: {', '.join(passwords.keys()) if passwords else 'None'}"
+    return "Account not found!"
 
-def list_accounts(username):
-    passwords = load_passwords(username)
-    if not passwords:
-        return "No accounts found!"
-    return "\n".join(passwords.keys())
+# Flask app
+app = Flask(__name__)
 
-# Main program
-if __name__ == "__main__":
-    print("Welcome to the Password Manager")
-    logged_in_user = None
+@app.route('/register', methods=['POST'])
+def api_register_user():
+    data = request.json
+    username = data['username']
+    master_password = data['password']
+    success, message = register_user(username, master_password)
+    return jsonify({'success': success, 'message': message}), (200 if success else 400)
 
-    while not logged_in_user:
-        print("\n[1] Register")
-        print("[2] Login")
-        choice = input("Choose an option: ")
-        
-        if choice == "1":
-            username = input("Enter a username: ")
-            master_password = input("Enter a master password: ")
-            print(register_user(username, master_password))
-        elif choice == "2":
-            username = input("Enter your username: ")
-            master_password = input("Enter your master password: ")
-            success, message = login_user(username, master_password)
-            print(message)
-            if success:
-                logged_in_user = username
-        else:
-            print("Invalid choice!")
+@app.route('/login', methods=['POST'])
+def api_login_user():
+    data = request.json
+    username = data['username']
+    master_password = data['password']
+    success, message = login_user(username, master_password)
+    return jsonify({'success': success, 'message': message}), (200 if success else 400)
 
-    print(f"\nWelcome, {logged_in_user}!")
-    while True:
-        print("\n[1] Add Password")
-        print("[2] Retrieve Password")
-        print("[3] List All Stored Accounts")
-        print("[4] Exit")
-        choice = input("Choose an option: ")
-        
-        if choice == "1":
-            account = input("Account Name: ")
-            password = input("Password: ")
-            add_password(logged_in_user, account, password)
-            print("Password added!")
-        elif choice == "2":
-            account = input("Account Name: ")
-            print(f"Password: {retrieve_password(logged_in_user, account)}")
-        elif choice == "3":
-            print("Stored Accounts:")
-            print(list_accounts(logged_in_user))
-        elif choice == "4":
-            break
-        else:
-            print("Invalid choice!")
+@app.route('/passwords', methods=['POST'])
+def api_add_password():
+    data = request.json
+    username = data['username']
+    account = data['account']
+    password = data['password']
+    add_password(username, account, password)
+    return jsonify({'message': 'Password added successfully!'})
+
+@app.route('/passwords', methods=['GET'])
+def api_retrieve_password():
+    username = request.args.get('username')
+    account = request.args.get('account')
+    password = retrieve_password(username, account)
+    return jsonify({'password': password})
+
+if __name__ == '__main__':
+    app.run(debug=True)

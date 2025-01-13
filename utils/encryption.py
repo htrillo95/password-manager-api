@@ -1,6 +1,7 @@
 import os
 from cryptography.fernet import Fernet
 
+# Function to load or generate a key
 def load_key():
     if not os.path.exists("key.key"):
         key = Fernet.generate_key()
@@ -11,6 +12,7 @@ def load_key():
             key = key_file.read()
     return key
 
+# Function to create Fernet object
 def create_fernet_key():
     key = load_key()
     return Fernet(key)

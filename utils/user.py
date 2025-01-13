@@ -1,5 +1,5 @@
 import bcrypt
-from utils.db import load_users, save_users, save_passwords
+from utils.db import load_users, save_users, save_password_to_db
 from utils.encryption import create_fernet_key
 
 def register_user(data):
@@ -16,7 +16,7 @@ def register_user(data):
 
     # Save the password in the passwords.json
     fernet = create_fernet_key()
-    save_passwords(username, master_password, fernet)
+    save_password_to_db(username, master_password, fernet)
 
     return {'success': True, 'message': 'User registered successfully!'}
 

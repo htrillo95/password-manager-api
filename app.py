@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from utils.user import register_user, login_user
-from utils.db import load_accounts
+from utils.db import load_accounts, save_password_to_db  # New function for saving password
 from utils.encryption import create_fernet_key
 
 app = Flask(__name__)
@@ -33,6 +33,23 @@ def api_get_accounts():
     accounts = load_accounts()
     user_accounts = accounts.get(username, [])
     return jsonify({'success': True, 'accounts': user_accounts})
+
+# New route for saving passwords
+@app.route('/passwords', methods=['POST'])
+def api_save_password():
+    data = request.json
+    username = data.get('username')
+    account_name = data.get('account_name')
+    password = data.get('password')
+
+    if not username or not account_name or not password:
+        return jsonify({'success': False, 'message': 'All fields are required!'}), 400
+
+    # Save the account password
+    save_password_to_db(username, account_name, password)
+
+    return jsonify({'success': True, 'message': 'Password saved successfully!'})
+
 
 if __name__ == '__main__':
     app.run(debug=True)

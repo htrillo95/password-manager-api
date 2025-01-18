@@ -11,5 +11,17 @@
     "newupdateduser": "$2b$12$z2hHGBTKeBJPxUzbamhYVezwWmwSUFt2O0F.abLCsHhFbIF02sxKq",
     "test101": "$2b$12$WQe.DU/c/MwzZlQnDdN0NOQ04OlURHj6Tv8NouLCMcL6cUtQEWms6",
     "test102": "$2b$12$1NqXy3Mag4TgkM87bojXV.6/8MV5u1ZjPWgpJ4MJ8P3avalDMSuRO",
-    "test103": "$2b$12$Um6brvmA3REaxgvf9BI8fuJkG8axhmCm284fxpGMD1x/of2ol.loq"
+    "test103": "$2b$12$Um6brvmA3REaxgvf9BI8fuJkG8axhmCm284fxpGMD1x/of2ol.loq",
+    "test104": "$2b$12$qMZ61QtIAkjskyR1A/gqDOlUEJHWmp1jWVm8w7sCnh/CMzwh5KsoO",
+    "new1": "$2b$12$IJ3xb4NS2OMuSLmUKtMBY.U34wZTWhZtxONkDQu4HbOaGCdD/LTmO",
+    "new2": "$2b$12$iTDnu4..FzthdDFQcuZJ..t0qACHKR27p7I7MvoNdiXHJgIcH0gIe",
+    "brandnewtest": "$2b$12$0uzKQq59o88DhMu5qSd0rOYwbbcCqa3sm4zVl4mhN6JPiBuDwjroO",
+    "new01": "$2b$12$zwxV89.LEH/CB73r0RIsmOS5crURMiFac0D.bZKWhQGo25SZZiL0S",
+    "new002": "$2b$12$/mT2SlvKx1fG9Ko9KN00P.ZNfET2azKoAG2rxRY/uW4rVh0JyY9WG",
+    "new003": "$2b$12$P1cvOavxjnuVlPkQpPluZewJhi8bVGH2phKukWIAs0V1Ku5Ugif1y",
+    "new004": "$2b$12$0xhEHXrcPKljAUOR0wN9aOhUbKak.LuoM/A/U752VmVfiUGPKT9mm",
+    "new005": "$2b$12$SAaEG2ca5EuDsMS0sXY5YOhpxLacPQI7fZhTzzkbqw/IjP8YDNWlm",
+    "new10": "$2b$12$YcmCNhebK2AyKSI7goSAJ.JfOVIg5tzA7qRZ4GSTnoDVu3xBTuHz6",
+    "test000": "$2b$12$3COilzhuuAgPULFhzctVguBBEVuc7a.vR6YnH4M.ToBPf2568uT6u",
+    "test0001": "$2b$12$6y5lk6luty0m5bkZis0PWubLFw/3iwLd7OlZpFbsPG45Xy8IqKnVa"
 }

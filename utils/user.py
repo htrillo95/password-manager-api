@@ -14,9 +14,9 @@ def register_user(data):
     users[username] = hashed_password
     save_users(users)
 
-    # Save the password in the passwords.json
+    # Save the password in the passwords.json (encrypt using Fernet)
     fernet = create_fernet_key()
-    save_password_to_db(username, master_password, fernet)
+    save_password_to_db(username, master_password, master_password)  # <-- This should pass the password, not fernet
 
     return {'success': True, 'message': 'User registered successfully!'}
 

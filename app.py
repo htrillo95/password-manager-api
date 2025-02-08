@@ -3,6 +3,7 @@ from flask_cors import CORS
 from utils.user import register_user, login_user
 from utils.db import load_accounts, save_password_to_db, update_password_in_db, delete_password_from_db
 from utils.encryption import create_fernet_key
+from utils.db import update_username_in_db 
 
 app = Flask(__name__)
 CORS(app, origins="http://localhost:3000")
@@ -83,6 +84,18 @@ def api_delete_password(account_name):
 
     delete_password_from_db(username, account_name)
     return jsonify({'success': True, 'message': 'Password deleted successfully!'})
+
+@app.route('/update-username', methods=['PUT'])
+def api_update_username():
+    data = request.json
+    current_username = data.get('current_username')
+    new_username = data.get('new_username')
+
+    if not current_username or not new_username:
+        return jsonify({'success': False, 'message': 'Both current and new username are required!'}), 400
+
+    response = update_username_in_db(current_username, new_username)
+    return jsonify(response), 400 if not response['success'] else 200
 
 if __name__ == '__main__':
     app.run(debug=True)

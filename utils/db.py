@@ -88,3 +88,22 @@ def delete_password_from_db(username, account_name):
     # Save the updated passwords data back to passwords.json
     with open(PASSWORDS_FILE, "w") as file:
         json.dump(passwords, file, indent=4)
+
+# Update username in users.json
+def update_username_in_db(current_username, new_username):
+    """Update the username in the users.json file."""
+    users = load_users()  # Load existing users
+
+    if current_username not in users:
+        return {'success': False, 'message': 'Current username not found!'}
+
+    if new_username in users:
+        return {'success': False, 'message': 'New username already exists!'}
+
+    # Move the user's data under the new username
+    users[new_username] = users.pop(current_username)
+    
+    # Save updated user data
+    save_users(users)
+
+    return {'success': True, 'message': 'Username updated successfully!'}

@@ -33,3 +33,29 @@ def login_user(data):
         return {'success': True, 'message': 'Login successful!'}
 
     return {'success': False, 'message': 'Incorrect password!'}
+
+def update_username(data):
+    old_username = data.get("old_username")
+    new_username = data.get("new_username")
+    users = load_users()
+
+    if not old_username or not new_username:
+        return {'success': False, 'message': 'Both old and new usernames are required!'}
+
+    if old_username not in users:
+        return {'success': False, 'message': 'Old username not found!'}
+
+    if new_username in users:
+        return {'success': False, 'message': 'New username is already taken!'}
+
+    # Update the username in the users.json
+    users[new_username] = users.pop(old_username)
+    save_users(users)
+
+    # Move stored accounts under the new username
+    passwords = load_accounts()
+    if old_username in passwords:
+        passwords[new_username] = passwords.pop(old_username)
+        save_password_to_db(new_username, None, None)  # Save changes to the database
+
+    return {'success': True, 'message': 'Username updated successfully!'}

@@ -4,6 +4,7 @@ from utils.user import register_user, login_user
 from utils.db import load_accounts, save_password_to_db, update_password_in_db, delete_password_from_db
 from utils.encryption import create_fernet_key
 from utils.db import update_username_in_db 
+from utils.user import delete_user
 
 app = Flask(__name__)
 CORS(app, origins="http://localhost:3000")
@@ -95,6 +96,18 @@ def api_update_username():
         return jsonify({'success': False, 'message': 'Both current and new username are required!'}), 400
 
     response = update_username_in_db(current_username, new_username)
+    return jsonify(response), 400 if not response['success'] else 200
+
+@app.route('/delete-account', methods=['DELETE'])
+def api_delete_user():
+    """Delete a user and all their stored accounts."""
+    data = request.json
+    username = data.get('username')
+
+    if not username:
+        return jsonify({'success': False, 'message': 'Username is required!'}), 400
+
+    response = delete_user(username)
     return jsonify(response), 400 if not response['success'] else 200
 
 if __name__ == '__main__':

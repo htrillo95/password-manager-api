@@ -27,6 +27,16 @@ def load_accounts():
             return json.load(file)
     return {}
 
+#Saves updated user account data back to passwords.json after changes
+def save_accounts(accounts):
+    """Save the updated accounts dictionary to passwords.json."""
+    try:
+        with open(PASSWORDS_FILE, "w") as file:
+            json.dump(accounts, file, indent=4)
+        print("✅ Accounts successfully saved to passwords.json")
+    except Exception as e:
+        print(f"❌ Error saving accounts to {PASSWORDS_FILE}: {e}")
+
 # Save a password to passwords.json (encrypt password before saving)
 def save_password_to_db(username, account_name, password):
     """Encrypt and save the account password to passwords.json."""

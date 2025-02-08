@@ -1,6 +1,7 @@
 import bcrypt
 from utils.db import load_users, save_users, save_password_to_db
 from utils.encryption import create_fernet_key
+from utils.db import load_accounts, save_accounts
 
 def register_user(data):
     username = data['username']
@@ -59,3 +60,24 @@ def update_username(data):
         save_password_to_db(new_username, None, None)  # Save changes to the database
 
     return {'success': True, 'message': 'Username updated successfully!'}
+
+# user.py
+
+def delete_user(username):
+    """Delete a user and all their stored accounts."""
+    users = load_users()
+    
+    if username not in users:
+        return {'success': False, 'message': 'User not found!'}
+
+    # Remove user from users.json
+    del users[username]
+    save_users(users)
+
+    # Remove user’s stored passwords from passwords.json
+    passwords = load_accounts()
+    if username in passwords:
+        del passwords[username]
+        save_accounts(passwords)
+
+    return {'success': True, 'message': 'User account deleted successfully!'}

@@ -2,6 +2,7 @@ import bcrypt
 from utils.db import load_users, save_users, save_password_to_db
 from utils.encryption import create_fernet_key
 from utils.db import load_accounts, save_accounts
+from flask import session
 
 def register_user(data):
     username = data['username']
@@ -11,13 +12,16 @@ def register_user(data):
     if username in users:
         return {'success': False, 'message': 'Username already exists!'}
 
+    # Hash the master password using bcrypt
     hashed_password = bcrypt.hashpw(master_password.encode(), bcrypt.gensalt()).decode()
     users[username] = hashed_password
-    save_users(users)
+    save_users(users)  # Save the updated users.json
 
-    # Save the password in the passwords.json (encrypt using Fernet)
-    fernet = create_fernet_key()
-    save_password_to_db(username, master_password, master_password)  # <-- This should pass the password, not fernet
+    # ✅ Initialize an empty password list for the user in passwords.json
+    passwords = load_accounts()
+    if username not in passwords:
+        passwords[username] = {"passwords": []}  # Create empty password storage
+        save_accounts(passwords)  # Save updated passwords.json
 
     return {'success': True, 'message': 'User registered successfully!'}
 
@@ -36,28 +40,33 @@ def login_user(data):
     return {'success': False, 'message': 'Incorrect password!'}
 
 def update_username(data):
-    old_username = data.get("old_username")
+    # 🔥 Ensure user is logged in
+    if "username" not in session:
+        return {'success': False, 'message': 'Unauthorized!'}, 401
+
+    old_username = session["username"]  # 🔥 Use the session to get the logged-in user
     new_username = data.get("new_username")
+    
     users = load_users()
 
-    if not old_username or not new_username:
-        return {'success': False, 'message': 'Both old and new usernames are required!'}
-
-    if old_username not in users:
-        return {'success': False, 'message': 'Old username not found!'}
+    if not new_username:
+        return {'success': False, 'message': 'New username is required!'}, 400
 
     if new_username in users:
-        return {'success': False, 'message': 'New username is already taken!'}
+        return {'success': False, 'message': 'New username is already taken!'}, 409
 
-    # Update the username in the users.json
+    # ✅ Update the username in users.json
     users[new_username] = users.pop(old_username)
     save_users(users)
 
-    # Move stored accounts under the new username
+    # ✅ Move stored accounts under the new username
     passwords = load_accounts()
     if old_username in passwords:
         passwords[new_username] = passwords.pop(old_username)
-        save_password_to_db(new_username, None, None)  # Save changes to the database
+        save_accounts(passwords)  # Save changes to the accounts file
+
+    # ✅ Update session with the new username
+    session["username"] = new_username
 
     return {'success': True, 'message': 'Username updated successfully!'}
 

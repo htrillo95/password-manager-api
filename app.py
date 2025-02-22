@@ -93,11 +93,15 @@ def api_update_username():
     new_username = data.get('new_username')
 
     if not current_username or not new_username:
-        return jsonify({'success': False, 'message': 'Both current and new username are required!'}), 400
+        return jsonify({'success': False, 'message': 'Both current and new usernames are required!'}), 400
 
     response = update_username_in_db(current_username, new_username)
-    return jsonify(response), 400 if not response['success'] else 200
 
+    if response.get("success"):
+        return jsonify(response), 200  # ✅ Explicitly returning 200
+    else:
+        return jsonify(response), 400  # ✅ Ensuring failed updates return 400
+    
 @app.route('/delete-account', methods=['DELETE'])
 def api_delete_user():
     """Delete a user and all their stored accounts."""

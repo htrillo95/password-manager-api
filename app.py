@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from utils.user import register_user, login_user
-from utils.db import load_accounts, save_password_to_db, update_password_in_db, delete_password_from_db
+from utils.sqlite_db import init_db
+from utils.sqlite_user import register_user, login_user, delete_user
+from utils.sqlite_accounts import save_password_to_db, update_password_in_db, delete_password_from_db, update_username_in_db
 from utils.encryption import create_fernet_key
-from utils.db import update_username_in_db 
-from utils.user import delete_user
+
+# ✅ Initialize DB when app starts
+init_db()
 
 app = Flask(__name__)
 CORS(app, origins="http://localhost:3000")
@@ -25,29 +27,30 @@ def api_login_user():
     response = login_user(data)
     return jsonify(response), 400 if not response['success'] else 200
 
-# Fetch stored accounts for a user
 @app.route('/accounts', methods=['GET'])
 def api_get_accounts():
+    from utils.sqlite_db import get_db_connection
     username = request.args.get('username')
     if not username:
         return jsonify({'success': False, 'message': 'Username is required!'}), 400
 
-    passwords = load_accounts()
-    user_data = passwords.get(username, {"passwords": []})
-    fernet = create_fernet_key()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT account_name, password FROM passwords WHERE username = ?", (username,))
+    rows = cursor.fetchall()
+    conn.close()
 
-    # Decrypt passwords before sending to frontend
+    fernet = create_fernet_key()
     decrypted_accounts = [
         {
-            "account_name": account["account_name"],
-            "password": fernet.decrypt(account["password"].encode()).decode()
+            "account_name": row["account_name"],
+            "password": fernet.decrypt(row["password"].encode()).decode()
         }
-        for account in user_data.get("passwords", [])
+        for row in rows
     ]
 
     return jsonify({'success': True, 'accounts': decrypted_accounts})
 
-# Save a new account
 @app.route('/passwords', methods=['POST'])
 def api_save_password():
     data = request.json
@@ -61,7 +64,6 @@ def api_save_password():
     save_password_to_db(username, account_name, password)
     return jsonify({'success': True, 'message': 'Password saved successfully!'})
 
-# Update an existing password
 @app.route('/passwords/<account_name>', methods=['PUT'])
 def api_update_password(account_name):
     data = request.json
@@ -74,7 +76,6 @@ def api_update_password(account_name):
     update_password_in_db(username, account_name, new_password)
     return jsonify({'success': True, 'message': 'Password updated successfully!'})
 
-# Delete an account
 @app.route('/passwords/<account_name>', methods=['DELETE'])
 def api_delete_password(account_name):
     data = request.json
@@ -98,13 +99,12 @@ def api_update_username():
     response = update_username_in_db(current_username, new_username)
 
     if response.get("success"):
-        return jsonify(response), 200  # ✅ Explicitly returning 200
+        return jsonify(response), 200
     else:
-        return jsonify(response), 400  # ✅ Ensuring failed updates return 400
-    
+        return jsonify(response), 400
+
 @app.route('/delete-account', methods=['DELETE'])
 def api_delete_user():
-    """Delete a user and all their stored accounts."""
     data = request.json
     username = data.get('username')
 

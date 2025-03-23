@@ -10,10 +10,7 @@ load_dotenv()
 # ✅ Initialize DB when app starts
 init_db()
 
-@app.before_request
-def handle_options_request():
-    if request.method == 'OPTIONS':
-        return '', 200
+
 
 app = Flask(__name__)
 CORS(app, origins=[
@@ -22,6 +19,11 @@ CORS(app, origins=[
     "https://riverlock-p04pj5vsx-hector-ts-projects.vercel.app"
 ], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], allow_headers=["Content-Type"])
 
+@app.before_request
+def handle_options_request():
+    if request.method == 'OPTIONS':
+        return '', 200
+    
 @app.route('/')
 def home():
     return 'Welcome to the Password Manager API!'

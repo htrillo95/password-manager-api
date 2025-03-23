@@ -2,7 +2,7 @@
 
 import sqlite3
 import bcrypt
-from utils.sqlite_db import get_db_connection
+from utils.postgres_db import get_db_connection
 
 # Register user
 def register_user(data):

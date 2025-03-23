@@ -1,7 +1,7 @@
 # utils/sqlite_accounts.py
 
 import sqlite3
-from utils.sqlite_db import get_db_connection
+from utils.postgres_db import get_db_connection
 from utils.encryption import create_fernet_key
 
 # Save new password

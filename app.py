@@ -4,6 +4,8 @@ from utils.sqlite_db import init_db
 from utils.sqlite_user import register_user, login_user, delete_user
 from utils.sqlite_accounts import save_password_to_db, update_password_in_db, delete_password_from_db, update_username_in_db
 from utils.encryption import create_fernet_key
+from dotenv import load_dotenv
+load_dotenv()
 
 # ✅ Initialize DB when app starts
 init_db()
@@ -29,7 +31,7 @@ def api_login_user():
 
 @app.route('/accounts', methods=['GET'])
 def api_get_accounts():
-    from utils.sqlite_db import get_db_connection
+    from utils.postgres_db import get_db_connection
     username = request.args.get('username')
     if not username:
         return jsonify({'success': False, 'message': 'Username is required!'}), 400

@@ -1,6 +1,5 @@
 # utils/sqlite_user.py
 
-import sqlite3
 import bcrypt
 from utils.postgres_db import get_db_connection
 
@@ -17,8 +16,8 @@ def register_user(data):
         conn.close()
         return {'success': False, 'message': 'Username already exists!'}
 
-    # Hash the password and insert
-    hashed_password = bcrypt.hashpw(master_password.encode(), bcrypt.gensalt())
+    # Hash the password and insert (decode to store as string)
+    hashed_password = bcrypt.hashpw(master_password.encode(), bcrypt.gensalt()).decode()
     cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
     conn.commit()
     conn.close()
@@ -38,7 +37,7 @@ def login_user(data):
 
     if result and bcrypt.checkpw(master_password.encode(), result['password'].encode()):
         return {'success': True, 'message': 'Login successful!'}
-    
+
     return {'success': False, 'message': 'Invalid credentials!'}
 
 

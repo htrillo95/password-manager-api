@@ -42,7 +42,7 @@ def api_get_accounts():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT account_name, password FROM passwords WHERE username = ?", (username,))
+    cursor.execute("SELECT account_name, password FROM passwords WHERE username = %s", (username,))
     rows = cursor.fetchall()
     conn.close()
 

@@ -16,7 +16,7 @@ def save_password_to_db(username, account_name, password):
     # Insert into DB
     cursor.execute("""
         INSERT INTO passwords (username, account_name, password)
-        VALUES (?, ?, ?)
+        VALUES (%s, %s, %s)
     """, (username, account_name, encrypted_password))
 
     conn.commit()
@@ -33,8 +33,8 @@ def update_password_in_db(username, account_name, new_password):
 
     cursor.execute("""
         UPDATE passwords
-        SET password = ?
-        WHERE username = ? AND account_name = ?
+        SET password = %s
+        WHERE username = %s AND account_name = %s
     """, (encrypted_password, username, account_name))
 
     conn.commit()
@@ -48,7 +48,7 @@ def delete_password_from_db(username, account_name):
 
     cursor.execute("""
         DELETE FROM passwords
-        WHERE username = ? AND account_name = ?
+        WHERE username = %s AND account_name = %s
     """, (username, account_name))
 
     conn.commit()
@@ -61,22 +61,22 @@ def update_username_in_db(current_username, new_username):
     cursor = conn.cursor()
 
     # Check if current username exists
-    cursor.execute("SELECT * FROM users WHERE username = ?", (current_username,))
+    cursor.execute("SELECT * FROM users WHERE username = %s", (current_username,))
     if not cursor.fetchone():
         conn.close()
         return {'success': False, 'message': 'Current username not found!'}
 
     # Check if new username already exists
-    cursor.execute("SELECT * FROM users WHERE username = ?", (new_username,))
+    cursor.execute("SELECT * FROM users WHERE username = %s", (new_username,))
     if cursor.fetchone():
         conn.close()
         return {'success': False, 'message': 'New username already exists! Please choose another one.'}
 
     # Update username in users table
-    cursor.execute("UPDATE users SET username = ? WHERE username = ?", (new_username, current_username))
+    cursor.execute("UPDATE users SET username = %s WHERE username = %s", (new_username, current_username))
 
     # Update username in passwords table
-    cursor.execute("UPDATE passwords SET username = ? WHERE username = ?", (new_username, current_username))
+    cursor.execute("UPDATE passwords SET username = %s WHERE username = %s", (new_username, current_username))
 
     conn.commit()
     conn.close()

@@ -12,14 +12,14 @@ def register_user(data):
     cursor = conn.cursor()
 
     # Check if user already exists
-    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
     if cursor.fetchone():
         conn.close()
         return {'success': False, 'message': 'Username already exists!'}
 
     # Hash the password and insert
     hashed_password = bcrypt.hashpw(master_password.encode(), bcrypt.gensalt())
-    cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
+    cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
     conn.commit()
     conn.close()
     return {'success': True, 'message': 'User registered successfully!'}
@@ -32,7 +32,7 @@ def login_user(data):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT password FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
     result = cursor.fetchone()
     conn.close()
 
@@ -48,8 +48,8 @@ def delete_user(username):
     cursor = conn.cursor()
 
     # Delete user’s passwords first (due to foreign key)
-    cursor.execute("DELETE FROM passwords WHERE username = ?", (username,))
-    cursor.execute("DELETE FROM users WHERE username = ?", (username,))
+    cursor.execute("DELETE FROM passwords WHERE username = %s", (username,))
+    cursor.execute("DELETE FROM users WHERE username = %s", (username,))
     conn.commit()
     conn.close()
     return {'success': True, 'message': 'User deleted successfully!'}

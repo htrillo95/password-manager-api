@@ -36,7 +36,7 @@ def login_user(data):
     result = cursor.fetchone()
     conn.close()
 
-    if result and bcrypt.checkpw(master_password.encode(), result['password']):
+    if result and bcrypt.checkpw(master_password.encode(), result['password'].encode()):
         return {'success': True, 'message': 'Login successful!'}
     
     return {'success': False, 'message': 'Invalid credentials!'}

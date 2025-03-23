@@ -15,7 +15,13 @@ CORS(app, origins=[
     "http://localhost:3000",
     "https://riverlock.vercel.app",
     "https://riverlock-p04pj5vsx-hector-ts-projects.vercel.app"
-], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], allow_headers=["Content-Type"])
+
+# ✅ Fix CORS Preflight (OPTIONS) requests
+@app.before_request
+def handle_options_requests():
+    if request.method == 'OPTIONS':
+        return '', 200
 
 @app.route('/')
 def home():

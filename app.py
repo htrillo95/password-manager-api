@@ -11,7 +11,11 @@ load_dotenv()
 init_db()
 
 app = Flask(__name__)
-CORS(app, origins="http://localhost:3000")
+CORS(app, origins=[
+    "http://localhost:3000",
+    "https://riverlock.vercel.app",
+    "https://riverlock-p04pj5vsx-hector-ts-projects.vercel.app"
+])
 
 @app.route('/')
 def home():
@@ -117,4 +121,4 @@ def api_delete_user():
     return jsonify(response), 400 if not response['success'] else 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False, host='0.0.0.0', port=5000)

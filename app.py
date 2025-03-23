@@ -13,10 +13,12 @@ init_db()
 
 
 app = Flask(__name__)
+
 CORS(app, origins=[
     "http://localhost:3000",
     "https://riverlock.vercel.app",
-    "https://riverlock-p04pj5vsx-hector-ts-projects.vercel.app"
+    "https://riverlock-p04pj5vsx-hector-ts-projects.vercel.app",
+    "https://riverlock-jcpb410sb-hector-ts-projects.vercel.app"
 ], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], allow_headers=["Content-Type"])
 
 @app.before_request

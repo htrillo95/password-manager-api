@@ -15,7 +15,7 @@ CORS(app, origins=[
     "http://localhost:3000",
     "https://riverlock.vercel.app",
     "https://riverlock-p04pj5vsx-hector-ts-projects.vercel.app"
-])
+], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
 @app.route('/')
 def home():

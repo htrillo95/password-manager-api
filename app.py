@@ -25,10 +25,10 @@ CORS(app, origins="*", supports_credentials=True,
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      allow_headers=["Content-Type"])
 
-@app.before_request
-def handle_options_request():
-    if request.method == 'OPTIONS':
-        return '', 200
+# @app.before_request
+# def handle_options_request():
+#     if request.method == 'OPTIONS':
+#         return '', 200
     
 @app.route('/')
 def home():

@@ -6,8 +6,6 @@ app = Flask(__name__)
 def home():
     return '✅ Flask app is running on Railway!'
 
-if __name__ == '__main__':
-    app.run()
 
 
 

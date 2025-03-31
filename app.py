@@ -42,9 +42,13 @@ def api_delete_user():
 @app.route("/passwords", methods=["POST"])
 def api_save_password():
     data = request.json
+    print("Received data for /passwords POST:", data)
     username = data.get('username')
+    print("username:", username)
     account_name = data.get('account_name')
+    print("account_name:", account_name)
     password = data.get('password')
+    print("password:", password)
 
     if not username or not account_name or not password:
         return jsonify({'success': False, 'message': 'All fields are required!'}), 400

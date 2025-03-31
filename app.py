@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ✅ Initialize DB when app starts
-init_db()
+# init_db()
 
 
 

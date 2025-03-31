@@ -1,14 +1,44 @@
-from flask import Flask
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from utils.sqlite_user import register_user, login_user, delete_user
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
+# CORS for frontend testing
+CORS(app, origins="*", supports_credentials=True,
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     allow_headers=["Content-Type"])
+
 @app.route("/")
 def home():
-    return "✅ Flask app running directly without Gunicorn"
+    return "✅ Password Manager API running!"
+
+@app.route("/register", methods=["POST"])
+def api_register_user():
+    data = request.json
+    response = register_user(data)
+    return jsonify(response), 400 if not response["success"] else 200
+
+@app.route("/login", methods=["POST"])
+def api_login_user():
+    data = request.json
+    response = login_user(data)
+    return jsonify(response), 400 if not response["success"] else 200
+
+@app.route("/delete-account", methods=["DELETE"])
+def api_delete_user():
+    data = request.json
+    username = data.get("username")
+    if not username:
+        return jsonify({"success": False, "message": "Username is required!"}), 400
+
+    response = delete_user(username)
+    return jsonify(response), 400 if not response["success"] else 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
-
 
 # from flask import Flask, request, jsonify
 # from flask_cors import CORS

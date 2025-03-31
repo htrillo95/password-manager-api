@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from utils.sqlite_user import register_user, login_user, delete_user
+from utils.sqlite_accounts import save_password_to_db
+from utils.encryption import create_fernet_key
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -36,6 +38,43 @@ def api_delete_user():
 
     response = delete_user(username)
     return jsonify(response), 400 if not response["success"] else 200
+
+@app.route("/passwords", methods=["POST"])
+def api_save_password():
+    data = request.json
+    username = data.get('username')
+    account_name = data.get('account_name')
+    password = data.get('password')
+
+    if not username or not account_name or not password:
+        return jsonify({'success': False, 'message': 'All fields are required!'}), 400
+
+    save_password_to_db(username, account_name, password)
+    return jsonify({'success': True, 'message': 'Password saved successfully!'})
+
+@app.route('/accounts', methods=['GET'])
+def api_get_accounts():
+    from utils.postgres_db import get_db_connection  # temporarily import here
+    username = request.args.get('username')
+    if not username:
+        return jsonify({'success': False, 'message': 'Username is required!'}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT account_name, password FROM passwords WHERE username = %s", (username,))
+    rows = cursor.fetchall()
+    conn.close()
+
+    fernet = create_fernet_key()
+    decrypted_accounts = [
+        {
+            "account_name": row["account_name"],
+            "password": fernet.decrypt(row["password"].encode()).decode()
+        }
+        for row in rows
+    ]
+
+    return jsonify({'success': True, 'accounts': decrypted_accounts})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

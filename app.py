@@ -7,7 +7,9 @@ from utils.sqlite_accounts import delete_password_from_db
 from utils.sqlite_accounts import update_username_in_db
 from utils.encryption import create_fernet_key
 from dotenv import load_dotenv
+import os
 load_dotenv()
+print("ENV CHECK - DATABASE_URL:", os.getenv("DATABASE_URL"))
 
 app = Flask(__name__)
 
@@ -117,6 +119,48 @@ def api_update_username():
         return jsonify(response), 200
     else:
         return jsonify(response), 400
+    
+@app.route("/stats", methods=["GET"])
+def get_stats():
+    import psycopg2
+    import urllib.parse as urlparse
+
+    db_url = os.getenv("DATABASE_URL")
+    print("DATABASE_URL:", db_url)
+    if not db_url:
+        return jsonify({"success": False, "message": "DATABASE_URL not set"}), 500
+
+    urlparse.uses_netloc.append("postgres")
+    parsed_url = urlparse.urlparse(db_url)
+
+    try:
+        conn = psycopg2.connect(
+            dbname=parsed_url.path[1:],
+            user=parsed_url.username,
+            password=parsed_url.password,
+            host=parsed_url.hostname,
+            port=parsed_url.port
+        )
+        cursor = conn.cursor()
+
+        # Get total number of users
+        cursor.execute("SELECT COUNT(*) FROM users;")
+        total_users = cursor.fetchone()[0]
+
+        # Get total number of stored passwords
+        cursor.execute("SELECT COUNT(*) FROM passwords;")
+        total_passwords = cursor.fetchone()[0]
+
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "total_users": total_users,
+            "total_passwords": total_passwords
+        }), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
